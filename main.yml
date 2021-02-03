@@ -1,0 +1,27 @@
+- hosts: all
+  tasks:
+  - name: upgrade all packages(pre-boot task)
+    yum:
+      name: '*'
+      state: latest
+
+  - name: System reboot(using command module)
+    command: /usr/sbin/reboot
+    async: 1
+    poll: 0
+    become: yes
+
+  - name: Checking for system back online --(Post-reboot)
+    wait_for_connection:
+
+  - name: Opening port using firewalld --(Post-reboot)
+    firewalld:
+       port: 22
+       state: enabled
+
+
+  - name: Checking for port 22 --(Post-reboot)
+    wait_for:
+       host: ans-node
+       port: 22
+       timeout: 30
